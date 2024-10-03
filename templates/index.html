@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/static/index.css">
+    <title>英語学習</title>
+</head>
+<body>
+    <h1>英文を入力してください</h1>
+    <form method="POST" action="/">
+        <textarea name="input_text" rows="5" cols="40" placeholder="ここにテキストを入力してください">{{ input_text or '' }}</textarea><br>
+        <p>穴埋め問題にしたい品詞を選択してください</p>
+        <h1>基礎レベル</h1>
+        
+        <input type="checkbox" name="pos_checkbox" value="VERB" id="verb_checkbox">
+        <label for="verb_checkbox">動詞</label>
+        
+        <input type="checkbox" name="pos_checkbox" value="NOUN" id="noun_checkbox">
+        <label for="noun_checkbox">名詞</label>
+        
+        <input type="checkbox" name="pos_checkbox" value="ADJ" id="adjective_checkbox">
+        <label for="adjective_checkbox">形容詞</label>
+        
+        <input type="checkbox" name="pos_checkbox" value="ADV" id="adverb_checkbox">
+        <label for="adverb_checkbox">副詞</label>
+
+        <input type="checkbox" name="pos_checkbox" value="AUX" id="auxiliarycerv_checkbox" >
+        <label for="auxiliarycerv_checkbox">助動詞</label>
+        <h1>応用レベル</h1>
+        <input type="checkbox" name="pos_checkbox" value="ADP" id="preposition_checkbox">
+        <label for="preposition_checkbox">前置詞</label>
+        <input type="checkbox" name="pos_checkbox" value="PRON" id="pronoun_checkbox">
+        <label for="pronoun_checkbox">代名詞</label>
+        <input type="checkbox" name="pos_checkbox" value="CCONJ" id="conjunction_checkbox">
+        <label for="conjunction_checkbox">接続詞</label>
+        <input type="checkbox" name="pos_checkbox" value="DET" id="determiner_checkbox">
+        <label for="determiner_checkbox">限定詞</label>
+        <br>
+        <button type="submit">送信</button>
+    </form>
+
+    {% if masked_sentence %}
+    <h2>穴埋め問題</h2> 
+    <p>{{ masked_sentence }}</p>
+    <h3>解答</h3>
+    <ul>
+    {% for number, word in answer_key.items() %}
+        <li>({{ number }}): {{ word }}</li>
+    {% endfor %}
+    </ul>
+    {% endif %}
+
+    {% if nltk_tags %}
+    <h2>NLTK 品詞タグ付け結果</h2>
+    <ul>
+    {% for word, tag in nltk_tags %}
+        <li>{{ word }}: {{ tag }}</li>
+    {% endfor %}
+    </ul>
+    {% endif %}
+
+    {% if dependencies %}
+    <h2>依存関係解析結果</h2>
+    <ul>
+    {% for dep in dependencies %}
+        <li>{{ dep.text }} - {{ dep.dep }} (Head: {{ dep.head }})</li>
+    {% endfor %}
+    </ul>
+    {% endif %}
+</body>
+</html>
