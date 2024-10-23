@@ -3,7 +3,7 @@ import stanza
 import nltk
 from nltk.tokenize import word_tokenize
 from nltk import pos_tag
-
+import contractions 
 nltk.download('punkt')
 # Flask アプリケーションの設定
 app = Flask(__name__)
@@ -19,13 +19,6 @@ def analyze_and_mask(text, pos_to_mask):
     counter = 1
 
     # 短縮形のリスト（'nt'を含むものも含む）
-    contractions = [
-        "can't", "won't", "wouldn't", "shouldn't", "mustn't", "couldn't",
-        "didn't", "isn't", "aren't", "wasn't", "weren't", "haven't",
-        "hasn't", "hadn't", "won't", "it's", "that's", "they're",
-        "you're", "we're", "I'll", "he'll", "she'll", "you'll", "they'll",
-        "n't"  # 'nt'を含む短縮形
-    ]
 
     for sentence in doc.sentences:
         for word in sentence.words:
