@@ -67,6 +67,15 @@ def analyze_dependencies(text):
                     ),
                 }
             )
+            dependencies.append(
+                {
+                    "text": word.text,
+                    "dep": word.deprel,
+                    "head": (
+                        sentence.words[word.head - 1].text if word.head > 0 else None
+                    ),
+                }
+            )
     return dependencies
 
 
@@ -79,8 +88,17 @@ def index():
     nltk_tags = []  # 初期化
     dependencies = []  # 初期化
 
+    # 文全体の正誤判定の初期値を「判定中」にする
+    is_correct = "判定中"
+    masked_sentence = ""  # 初期化
+    answer_key = {}  # 初期化
+    nltk_tags = []  # 初期化
+    dependencies = []  # 初期化
+
     if request.method == "POST":
         input_text = request.form.get("input_text", "")
+        pos_to_mask = request.form.getlist("pos_checkbox")
+        transcription_text = request.form.get("transcription_text", "")
         pos_to_mask = request.form.getlist("pos_checkbox")
         transcription_text = request.form.get("transcription_text", "")
 
@@ -101,16 +119,31 @@ def index():
                 "PUNCT": "PUNCT",  # 句読点
                 "SCONJ": "SCONJ",  # 接続詞
                 "SYM": "SYM",  # 記号
+                "ADJ": "ADJ",  # 形容詞
+                "ADP": "ADP",  # 前置詞
+                "ADV": "ADV",  # 副詞
+                "AUX": "AUX",  # 助動詞
+                "CCONJ": "CCONJ",  # 等位接続詞
+                "DET": "DET",  # 限定詞
+                "NOUN": "NOUN",  # 名詞
+                "NUM": "NUM",  # 数詞
+                "PRON": "PRON",  # 代名詞
+                "PROPN": "PROPN",  # 固有名詞
+                "VERB": "VERB",  # 動詞
+                "PUNCT": "PUNCT",  # 句読点
+                "SCONJ": "SCONJ",  # 接続詞
+                "SYM": "SYM",  # 記号
             }
 
             # マスキング対象品詞を Stanza タグと一致
             pos_to_mask = [
                 tag for tag in pos_to_mask if tag in pos_to_mask_stanza.keys()
             ]
+                tag for tag in pos_to_mask if tag in pos_to_mask_stanza.keys()
+            ]
 
             # マスキング処理
-            masked_sentence, answer_key = analyze_and_mask(
-                input_text, pos_to_mask)
+            masked_sentence, answer_key = analyze_and_mask(input_text, pos_to_mask)
 
             # NLTK 処理
             nltk_tags = analyze_with_nltk(input_text)
@@ -118,6 +151,20 @@ def index():
             # 依存関係解析
             dependencies = analyze_dependencies(input_text)
 
+            # 文全体の正誤判定 (音声認識結果がある場合のみ)
+            if transcription_text:
+                is_correct = input_text.strip() == transcription_text.strip()
+
+        return render_template(
+            "index.html",
+            input_text=input_text,
+            masked_sentence=masked_sentence,
+            answer_key=answer_key,
+            nltk_tags=nltk_tags,
+            dependencies=dependencies,
+            transcription_text=transcription_text,  # 認識結果を渡す
+            is_correct=is_correct,  # 正誤判定結果を渡す
+        )
             # 文全体の正誤判定 (音声認識結果がある場合のみ)
             if transcription_text:
                 is_correct = input_text.strip() == transcription_text.strip()
